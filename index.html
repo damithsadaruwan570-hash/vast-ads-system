@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAST Ad System</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: sans-serif; background: #000; }
+    #adContainer, #mainVideo { width: 100%; height: 100vh; }
+    #skipBtn {
+      position: absolute; top: 20px; right: 20px; padding: 10px 20px;
+      background: #fff; border: none; cursor: pointer; display: none;
+    }
+  </style>
+</head>
+<body>
+  <button id="skipBtn">Skip Ad</button>
+  <video id="adContainer" autoplay muted></video>
+  <iframe id="mainVideo" style="display:none;" src="https://drive.google.com/file/d/1ZBQS9v6zNscf2YWy-RpPrKJb4mTgCkHa/preview" frameborder="0" allowfullscreen></iframe>
+
+  <script>
+    fetch('ad-config.json')
+      .then(response => response.json())
+      .then(config => {
+        const adVideo = document.getElementById('adContainer');
+        const mainVideo = document.getElementById('mainVideo');
+        const skipBtn = document.getElementById('skipBtn');
+
+        adVideo.src = config.adVideoUrl;
+        adVideo.addEventListener('loadedmetadata', () => {
+          let skipTime = Math.floor(Math.random() * 10) + 10; // 10-20s
+          setTimeout(() => {
+            skipBtn.style.display = 'block';
+          }, skipTime * 1000);
+        });
+
+        adVideo.addEventListener('ended', () => {
+          adVideo.style.display = 'none';
+          mainVideo.style.display = 'block';
+        });
+
+        adVideo.addEventListener('click', () => {
+          window.open(config.adClickUrl, '_blank');
+        });
+
+        skipBtn.addEventListener('click', () => {
+          adVideo.pause();
+          adVideo.style.display = 'none';
+          skipBtn.style.display = 'none';
+          mainVideo.style.display = 'block';
+        });
+      });
+  </script>
+</body>
+</html>
